@@ -16,8 +16,8 @@ var BlockElement = cc.Sprite.extend({
         self.setColor(cc.color(98,98,98));
         var wid = GlobalPara.blockWidth;
         self.setTextureRect(cc.rect(0,0,wid,wid));
-        //种类 0 - 5
-        self._type_index = cc.random0To1() * 6;
+        
+        self._type_index = cc.random0To1() * GlobalPara.blockTypes;
         self._type_index = Math.floor(self._type_index);
         self._pos_col = col;
         self._pos_row = row;
@@ -49,5 +49,16 @@ var BlockElement = cc.Sprite.extend({
 
         return this._type_index;
     },
+
+    setRow : function (row) {
+
+        this._pos_row = row;
+    },
+
+    setCol : function (col) {
+
+        this._pos_col = col;
+    }
+
 
 });

@@ -5,9 +5,10 @@
 var GlobalPara = {
 
     blockWidth : 90,
+    blockTypes : 5,
     columns : 7,
-    rows: 9,
+    rows: 12,
     blockGap : 5
 
 
-}
+};

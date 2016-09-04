@@ -7,8 +7,9 @@
 var LayerBlocks = cc.Layer.extend({
     _basePoint:null,
     _blocks:[],
-    _isAnimationing:false,
-    _blocksToRemove:null,
+    _hasBlockAnimation:true,
+    _blocksToRemove:[],
+    _needFillWithNewBlocks:false,
     ctor:function () {
 
 
@@ -41,7 +42,6 @@ var LayerBlocks = cc.Layer.extend({
 
         var size = cc.winSize;
         var itemWidth = GlobalPara.blockWidth;
-        //var itemWidth = 90;
 
 
 
@@ -107,30 +107,49 @@ var LayerBlocks = cc.Layer.extend({
 
         var self = this;
 
-        if (self._isAnimationing) {
-            self._isAnimationing = false;
-            for (var i = 0; i < GlobalPara.columns * GlobalPara.rows; i++) {
+        if (self._hasBlockAnimation) {
+            self._hasBlockAnimation = false;
+            var len = GlobalPara.columns * GlobalPara.rows;
+            for (var i = 0; i < len; i++) {
                 var blk = self._blocks[i];
                 if (blk!=undefined && blk.getNumberOfRunningActions() > 0) {
-                    self._isAnimationing  = true;
+                    self._hasBlockAnimation  = true;
                     break;
                 }
             }
         }
-        if (!self._isAnimationing) {
-            self.checkAndRemoveChain();
-            self.unscheduleUpdate();
+        if (!self._hasBlockAnimation) {
+
+            if(self._needFillWithNewBlocks){
+
+                self.fillWithNewBlocks();
+            }
+            else
+            {
+                if(self.checkChains())
+                {
+                    self.removeBlocks();
+
+                }
+            }
+
+
         }
+
+
+        //self._needFillWithNewBlocks = true;
+        //self.removeBlocks();
     },
-    
-    
-    checkAndRemoveChain : function () {
+
+
+    checkChains : function () {
 
         var self = this;
         self._blocksToRemove.splice(0,self._blocksToRemove.length);
 
         var blocksSize = GlobalPara.columns * GlobalPara.rows;
         for (var i =0 ; i<blocksSize ;i++){
+
 
             var chainInRow = self.getChainInRow(self._blocks[i]);
             var chainInCol = self.getChainInCol(self._blocks[i]);
@@ -141,7 +160,7 @@ var LayerBlocks = cc.Layer.extend({
                 }
                 return ary;
             };
-            
+
             if (chainInRow.length >=3){
                 self._blocksToRemove = chainInRow.reduce(arrayPush,self._blocksToRemove);
             }
@@ -152,14 +171,20 @@ var LayerBlocks = cc.Layer.extend({
 
         }
 
-        self.removeBlocks();
-        
+
+        //cc.log(self._blocksToRemove.length);
+
+        return (self._blocksToRemove.length>0);
+
         
     },
     
     
     getChainInCol : function (block) {
 
+        if(block == null){
+            return [];
+        }
 
         var self = this;
 
@@ -191,6 +216,12 @@ var LayerBlocks = cc.Layer.extend({
     },
     
     getChainInRow : function (block) {
+
+
+        if(block == null){
+            return [];
+        }
+
 
         var self = this;
 
@@ -230,16 +261,120 @@ var LayerBlocks = cc.Layer.extend({
 
         var self = this;
         var length = self._blocksToRemove.length;
-        cc.log(length);
+
+        //cc.log(length);
+
+        var setNull = function(target,data){
+
+            var c = this._blocksToRemove[data].getCol();
+            var r = this._blocksToRemove[data].getRow();
+            this._blocks[r * GlobalPara.columns + c] = null;
+
+        };
+
+        var setNeedFill = function(target){
+
+            if(!self._needFillWithNewBlocks){
+                self._needFillWithNewBlocks = true;
+
+            }
+        };
+
+
         for( var i = 0 ; i<length;i++) {
 
-            self._blocksToRemove[i].setScale(0.5);
+            var fo =  cc.fadeOut(0.5);
+            var cb_1 =  cc.callFunc(setNull,self,i);
+            var cb_2 =  cc.removeSelf();
+            var cb_3 =  cc.callFunc(setNeedFill,self);
+            var seq =  cc.sequence(fo,cb_1,cb_2,cb_3);
+            self._blocksToRemove[i].runAction(seq);
+
 
         }
 
+        self._hasBlockAnimation = true;
+
+
+
+
+    },
+    
+    
+    fillWithNewBlocks : function () {
+
+        var self = this;
+
+        self._hasBlockAnimation = true;
+
+
+        var blanksInCol = new Array(GlobalPara.columns);
+        for (var col = 0; col < GlobalPara.columns; col++) {
+
+            var blanks = 0;
+            for (var row = 0; row < GlobalPara.rows; row++) {
+
+                var blk = self._blocks[row * GlobalPara.columns + col];
+                if ( blk == null){
+
+                    blanks++;
+
+                }
+                else{
+
+                    if(blanks>0){
+
+                        //var newRow = row - blanks;
+                        self._blocks[(row - blanks) * GlobalPara.columns + col] = blk;
+                        self._blocks[row * GlobalPara.columns + col] = null;
+                        blk.setRow(row - blanks);
+                        blk.stopAllActions();
+                        var mt = cc.moveTo(0.5,self.getPositionByDim(row - blanks,col));
+                        blk.runAction(mt);
+
+                    }
+
+                }
+
+
+
+            }
+
+
+            blanksInCol[col] = blanks;
+
+
+        }
+
+
+
+        for(var col_1 = 0; col_1<GlobalPara.columns; col_1++){
+
+            for (var row_1 = GlobalPara.rows - blanksInCol[col_1]; row_1 < GlobalPara.rows; row_1++) {
+                self.createAndDropBlock(row_1, col_1);
+            }
+
+        }
+
+
+            /*
+
+
+
+                    // 2. 创建新的寿司精灵并让它落到上方空缺的位置
+                    for (int col = 0; col < m_width; col++) {
+                        for (int row = m_height - colEmptyInfo[col]; row < m_height; row++) {
+                            createAndDropSushi(row, col);
+                        }
+                    }
+            */
+
+        self._needFillWithNewBlocks = false;
+        //self._hasBlockAnimation = true;
+
     }
     
-    
+
 });
 
 
