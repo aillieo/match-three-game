@@ -1,9 +1,11 @@
 
-var HelloWorldScene = cc.Scene.extend({
+var SceneMain = cc.Scene.extend({
     onEnter:function () {
         this._super();
-        var layer = new LayerBlocks();
-        this.addChild(layer);
+        var layer1 = new LayerBlocks();
+        this.addChild(layer1);
+        var layer2 = new LayerOperation();
+        this.addChild(layer2);
     }
 });
 

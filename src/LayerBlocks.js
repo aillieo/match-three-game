@@ -31,6 +31,13 @@ var LayerBlocks = cc.Layer.extend({
 
         self.scheduleUpdate();
 
+
+
+
+
+
+
+
         return true;
     },
 
@@ -137,8 +144,9 @@ var LayerBlocks = cc.Layer.extend({
         }
 
 
-        //self._needFillWithNewBlocks = true;
-        //self.removeBlocks();
+        //适当的时候
+        cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
+
     },
 
 
@@ -173,6 +181,12 @@ var LayerBlocks = cc.Layer.extend({
 
 
         //cc.log(self._blocksToRemove.length);
+
+
+
+
+
+
 
         return (self._blocksToRemove.length>0);
 
