@@ -28,7 +28,7 @@ var LayerOperation = cc.Layer.extend({
             target : self,
             eventName: "ENABLE_TOUCH",
             callback: function (event) {
-                cc.log(event,"happy");
+                //cc.log(event);
                 self._isTouchEnabled = true;
             }
         });
@@ -59,6 +59,9 @@ var LayerOperation = cc.Layer.extend({
         }
 
         cc.log("touch began");
+        
+        //event.getCurrentTarget().touchStartX = touch.getLocation().x;
+        event.getCurrentTarget().touchStartY = touch.getLocation().y;
 
         return true;
 
@@ -67,7 +70,19 @@ var LayerOperation = cc.Layer.extend({
 
     onTouchMoved:function(touch, event){
 
-        cc.log("touch moved");
+      
+        
+        //var touchX = touch.getLocation().x;
+        var touchY = touch.getLocation().y;
+        var touchStartX = event.getCurrentTarget().touchStartX;
+        var touchStartY = event.getCurrentTarget().touchStartY;
+        
+        var deltaX = touchX - touchStartX;
+        var deltaY = touchY - touchStartY;
+
+        
+        
+        cc.log("touch moved",deltaX,deltaY);
 
     }
 

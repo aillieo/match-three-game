@@ -6,8 +6,11 @@
 var BlockElement = cc.Sprite.extend({
     _pos_col:0,
     _pos_row:0,
-    _type_index:0,
-    ctor:function (row,col) {
+    _typeIndex:0,
+    _willBeRemoved:false,
+    _isFrozen:false,
+    _withSuperPower:0,
+    ctor:function () {
 
         this._super();
 
@@ -17,21 +20,23 @@ var BlockElement = cc.Sprite.extend({
         var wid = GlobalPara.blockWidth;
         self.setTextureRect(cc.rect(0,0,wid,wid));
         
-        self._type_index = cc.random0To1() * GlobalPara.blockTypes;
-        self._type_index = Math.floor(self._type_index);
-        self._pos_col = col;
-        self._pos_row = row;
+        return true;
+    },
+    
+    setTypeIndex:function(typeIndex){
+      
+              
+        this._typeIndex = typeIndex;
+        var self = this;
 
-        var indexLabel = new cc.LabelTTF(self._type_index.toString(), "Arial", 38);
+        var indexLabel = new cc.LabelTTF(self._typeIndex.toString(), "Arial", 38);
 
 
         indexLabel.x = self.getContentSize().width/2;
         indexLabel.y = self.getContentSize().height/2;
 
         self.addChild(indexLabel, 5);
-
-
-        return true;
+      
     },
 
     getCol : function () {
@@ -47,7 +52,7 @@ var BlockElement = cc.Sprite.extend({
 
     getTypeIndex:function () {
 
-        return this._type_index;
+        return this._typeIndex;
     },
 
     setRow : function (row) {
@@ -58,7 +63,15 @@ var BlockElement = cc.Sprite.extend({
     setCol : function (col) {
 
         this._pos_col = col;
-    }
+    },
+    
+    isToBeRemoved : function(){
+        return this._willBeRemoved;
+    },
+    
+    markToRemove : function(){
+       this._willBeRemoved = true;
+    },
 
 
 });

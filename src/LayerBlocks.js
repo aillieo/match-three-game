@@ -5,10 +5,12 @@
 
 
 var LayerBlocks = cc.Layer.extend({
+    _blockCreator:null,
+    _chainFinder:null,
     _basePoint:null,
     _blocks:[],
     _hasBlockAnimation:true,
-    _blocksToRemove:[],
+    //_blocksToRemove:[],
     _needFillWithNewBlocks:false,
     ctor:function () {
 
@@ -24,7 +26,12 @@ var LayerBlocks = cc.Layer.extend({
             y: size.height / 2
         });
         self.addChild(bg, -1);
+        
+        self._blockCreator = new BlockCreator();
+        self.addChild(self._blockCreator);
 
+        self._chainFinder = new ChainFinder();
+        self.addChild(self._chainFinder);
 
         self.initMatrix();
 
@@ -79,7 +86,10 @@ var LayerBlocks = cc.Layer.extend({
         var self = this;
         var size = cc.winSize;
 
-        var block = new BlockElement(row,col);
+        //var block = new BlockElement(row,col);
+        var block = self._blockCreator.createRandomBlock();
+        block.setRow(row);
+        block.setCol(col);
 
         var pDest = self.getPositionByDim(row,col);
         var pFrom = new cc.Point(pDest.x , pDest.y + 500);
@@ -98,8 +108,7 @@ var LayerBlocks = cc.Layer.extend({
 
     getPositionByDim:function(row,col) {
 
-        //var width = BlockElement.width;
-        var width = 90;
+        var width = GlobalPara.blockWidth;
         var self = this;
         var x = self._basePoint.x + col*(width + GlobalPara.blockGap);
         var y = self._basePoint.y + row*(width + GlobalPara.blockGap);
@@ -133,10 +142,11 @@ var LayerBlocks = cc.Layer.extend({
             }
             else
             {
-                if(self.checkChains())
+                //self._chainFinder.checkChains(self._blocks);
+                if(self._chainFinder.checkChains(self._blocks))
                 {
+                     
                     self.removeBlocks();
-
                 }
             }
 
@@ -149,140 +159,23 @@ var LayerBlocks = cc.Layer.extend({
 
     },
 
-
-    checkChains : function () {
-
-        var self = this;
-        self._blocksToRemove.splice(0,self._blocksToRemove.length);
-
-        var blocksSize = GlobalPara.columns * GlobalPara.rows;
-        for (var i =0 ; i<blocksSize ;i++){
-
-
-            var chainInRow = self.getChainInRow(self._blocks[i]);
-            var chainInCol = self.getChainInCol(self._blocks[i]);
-
-            var arrayPush = function (ary,itm) {
-                if(ary.indexOf(itm)==-1){
-                    ary.push(itm);
-                }
-                return ary;
-            };
-
-            if (chainInRow.length >=3){
-                self._blocksToRemove = chainInRow.reduce(arrayPush,self._blocksToRemove);
-            }
-            if (chainInCol.length >=3) {
-                self._blocksToRemove = chainInCol.reduce(arrayPush,self._blocksToRemove);
-            }
-
-
-        }
-
-
-        //cc.log(self._blocksToRemove.length);
-
-
-
-
-
-
-
-        return (self._blocksToRemove.length>0);
-
-        
-    },
-    
-    
-    getChainInCol : function (block) {
-
-        if(block == null){
-            return [];
-        }
-
-        var self = this;
-
-        var blocks = new Array(block);
-
-        var neighborRow = block.getRow() - 1;
-        while (neighborRow >= 0) {
-            var previousBlock = self._blocks[neighborRow * GlobalPara.columns + block.getCol()];
-            if (previousBlock && (previousBlock.getTypeIndex() == block.getTypeIndex())) {
-                blocks.push(previousBlock);
-                neighborRow--;
-            } else {
-                break;
-            }
-        }
-        neighborRow = block.getRow() + 1;
-        while (neighborRow < GlobalPara.rows) {
-            var nextBlock =  self._blocks[neighborRow * GlobalPara.columns + block.getCol()];
-            if (nextBlock && (nextBlock.getTypeIndex() == block.getTypeIndex())) {
-                blocks.push(nextBlock);
-                neighborRow++;
-            } else {
-                break;
-            }
-        }
-
-        return blocks;
-        
-    },
-    
-    getChainInRow : function (block) {
-
-
-        if(block == null){
-            return [];
-        }
-
-
-        var self = this;
-
-        var blocks = new Array(block);
-
-
-        var neighborCol = block.getCol() - 1;
-        while (neighborCol >= 0) {
-            var previousBlock = self._blocks[block.getRow() * GlobalPara.columns + neighborCol];
-            if (previousBlock && (previousBlock.getTypeIndex() == block.getTypeIndex())) {
-                blocks.push(previousBlock);
-                neighborCol--;
-            } else {
-                break;
-            }
-        }
-        neighborCol = block.getCol() + 1;
-        while (neighborCol < GlobalPara.columns) {
-            var nextBlock =  self._blocks[block.getRow() * GlobalPara.columns + neighborCol];
-            if (nextBlock && (nextBlock.getTypeIndex() == block.getTypeIndex())) {
-                blocks.push(nextBlock);
-                neighborCol++;
-            } else {
-                break;
-            }
-        }
-
-        return blocks;
-
-
-    },
-    
     
     removeBlocks : function () {
 
 
 
         var self = this;
-        var length = self._blocksToRemove.length;
+        var length = self._blocks.length;
 
         //cc.log(length);
+        
 
         var setNull = function(target,data){
 
-            var c = this._blocksToRemove[data].getCol();
-            var r = this._blocksToRemove[data].getRow();
-            this._blocks[r * GlobalPara.columns + c] = null;
+            //var c = this._blocks[data].getCol();
+            //var r = this._blocks[data].getRow();
+            //this._blocks[r * GlobalPara.columns + c] = null;
+            this._blocks[data] = null;
 
         };
 
@@ -297,12 +190,17 @@ var LayerBlocks = cc.Layer.extend({
 
         for( var i = 0 ; i<length;i++) {
 
-            var fo =  cc.fadeOut(0.5);
-            var cb_1 =  cc.callFunc(setNull,self,i);
-            var cb_2 =  cc.removeSelf();
-            var cb_3 =  cc.callFunc(setNeedFill,self);
-            var seq =  cc.sequence(fo,cb_1,cb_2,cb_3);
-            self._blocksToRemove[i].runAction(seq);
+            if(self._blocks[i].isToBeRemoved()){
+                cc.log("rmv");
+
+                var fo =  cc.fadeOut(0.5);
+                var cb_1 =  cc.callFunc(setNull,self,i);
+                var cb_2 =  cc.removeSelf();
+                var cb_3 =  cc.callFunc(setNeedFill,self);
+                var seq =  cc.sequence(fo,cb_1,cb_2,cb_3);
+                self._blocks[i].runAction(seq);
+
+            }
 
 
         }
@@ -371,21 +269,33 @@ var LayerBlocks = cc.Layer.extend({
         }
 
 
-            /*
-
-
-
-                    // 2. 创建新的寿司精灵并让它落到上方空缺的位置
-                    for (int col = 0; col < m_width; col++) {
-                        for (int row = m_height - colEmptyInfo[col]; row < m_height; row++) {
-                            createAndDropSushi(row, col);
-                        }
-                    }
-            */
-
         self._needFillWithNewBlocks = false;
         //self._hasBlockAnimation = true;
 
+    },
+    
+    getBlockContainingPoint:function(pt){
+      
+      
+        var length = self._blocks.length;
+        for (var i =0 ; i<length ;i++){
+          if(cc.rectContainsPoint(this._blocks[i].getBoudingBox(),pt)){
+            cc.log(i);
+            
+            return this._blocks[i];
+          }
+
+
+
+              
+
+
+        }
+      
+      
+      
+      
+      
     }
     
 
