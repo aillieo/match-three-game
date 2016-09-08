@@ -5,6 +5,7 @@
 
 var LayerOperation = cc.Layer.extend({
     _isTouchEnabled:false,
+    _moveEnded:true,
 
     ctor:function () {
 
@@ -28,7 +29,6 @@ var LayerOperation = cc.Layer.extend({
             target : self,
             eventName: "ENABLE_TOUCH",
             callback: function (event) {
-                //cc.log(event);
                 self._isTouchEnabled = true;
             }
         });
@@ -54,13 +54,16 @@ var LayerOperation = cc.Layer.extend({
 
     onTouchBegan:function(touch , event){
 
+        cc.log("touch began");
+
         if(!this._isTouchEnabled) {
-            return false;
+            //return false;
         }
 
-        cc.log("touch began");
-        
-        //event.getCurrentTarget().touchStartX = touch.getLocation().x;
+        this._moveEnded = false;
+
+
+        event.getCurrentTarget().touchStartX = touch.getLocation().x;
         event.getCurrentTarget().touchStartY = touch.getLocation().y;
 
         return true;
@@ -70,21 +73,32 @@ var LayerOperation = cc.Layer.extend({
 
     onTouchMoved:function(touch, event){
 
-      
-        
-        //var touchX = touch.getLocation().x;
+
+        if(this._moveEnded){
+            return;
+        }
+
+        var touchX = touch.getLocation().x;
         var touchY = touch.getLocation().y;
         var touchStartX = event.getCurrentTarget().touchStartX;
         var touchStartY = event.getCurrentTarget().touchStartY;
-        
+
         var deltaX = touchX - touchStartX;
         var deltaY = touchY - touchStartY;
 
-        
-        
+
+        var eve = new cc.EventCustom("OPERATION");
+        var data = {
+            pt : new cc.Point(touchStartX,touchStartY),
+            dir : "down"
+        };
+        eve.setUserData(data);
+
+        cc.eventManager.dispatchCustomEvent(eve);
+
         cc.log("touch moved",deltaX,deltaY);
+        this._moveEnded = true;
 
     }
-
 
 });

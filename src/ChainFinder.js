@@ -149,7 +149,17 @@ var ChainFinder = cc.Node.extend({
 
 
     },
- 
+
+
+    checkDeath : function(allBlocks){
+
+
+        return false;
+
+    },
+
+
+
 
 
 

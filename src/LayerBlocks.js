@@ -8,6 +8,8 @@ var LayerBlocks = cc.Layer.extend({
     _blockCreator:null,
     _chainFinder:null,
     _basePoint:null,
+    _blockSource:null,
+    _blackTarget:null,
     _blocks:[],
     _hasBlockAnimation:true,
     //_blocksToRemove:[],
@@ -26,7 +28,7 @@ var LayerBlocks = cc.Layer.extend({
             y: size.height / 2
         });
         self.addChild(bg, -1);
-        
+
         self._blockCreator = new BlockCreator();
         self.addChild(self._blockCreator);
 
@@ -34,6 +36,17 @@ var LayerBlocks = cc.Layer.extend({
         self.addChild(self._chainFinder);
 
         self.initMatrix();
+
+
+        var operationListener = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            target : self,
+            eventName: "OPERATION",
+            callback: self.handleOperation
+        });
+        cc.eventManager.addListener(operationListener,self);
+
+
 
 
         self.scheduleUpdate();
@@ -116,7 +129,7 @@ var LayerBlocks = cc.Layer.extend({
 
     },
 
-    
+
     update : function (delta) {
 
         //cc.log(delta);
@@ -145,21 +158,38 @@ var LayerBlocks = cc.Layer.extend({
                 //self._chainFinder.checkChains(self._blocks);
                 if(self._chainFinder.checkChains(self._blocks))
                 {
-                     
+
                     self.removeBlocks();
+                }
+                else{
+
+
+                    if(self._chainFinder.checkDeath(self._blocks)){
+
+                    }
+                    else{
+
+
+                        cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
+
+                    }
                 }
             }
 
 
         }
+        else{
+
+            //cc.eventManager.dispatchCustomEvent("DISABLE_TOUCH");
 
 
-        //适当的时候
-        cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
+        }
+
+
 
     },
 
-    
+
     removeBlocks : function () {
 
 
@@ -168,7 +198,7 @@ var LayerBlocks = cc.Layer.extend({
         var length = self._blocks.length;
 
         //cc.log(length);
-        
+
 
         var setNull = function(target,data){
 
@@ -191,7 +221,6 @@ var LayerBlocks = cc.Layer.extend({
         for( var i = 0 ; i<length;i++) {
 
             if(self._blocks[i].isToBeRemoved()){
-                cc.log("rmv");
 
                 var fo =  cc.fadeOut(0.5);
                 var cb_1 =  cc.callFunc(setNull,self,i);
@@ -211,8 +240,8 @@ var LayerBlocks = cc.Layer.extend({
 
 
     },
-    
-    
+
+
     fillWithNewBlocks : function () {
 
         var self = this;
@@ -273,31 +302,67 @@ var LayerBlocks = cc.Layer.extend({
         //self._hasBlockAnimation = true;
 
     },
-    
+
     getBlockContainingPoint:function(pt){
-      
-      
+
+
         var length = self._blocks.length;
         for (var i =0 ; i<length ;i++){
-          if(cc.rectContainsPoint(this._blocks[i].getBoudingBox(),pt)){
-            cc.log(i);
-            
-            return this._blocks[i];
-          }
+            if(cc.rectContainsPoint(this._blocks[i].getBoudingBox(),pt)){
+                cc.log(i);
+
+                return this._blocks[i];
+            }
 
 
 
-              
+
 
 
         }
-      
-      
-      
-      
-      
+
+
+
+
+
+    },
+
+    handleOperation:function(event){
+
+        cc.log("handle");
+
+        var eve = event.getUserData();
+        var pt = eve.pt;
+        var dir = eve.dir;
+
+        var self = this;
+
+
+        self._blockSource = self.getBlockContainingPoint(pt);
+        var dtRow = 0;
+        var dtCol = 0;
+        if(dir == "down"){
+            dtRow = -1;
+        }
+
+
+        _blackTarget = self.getNeighborBlock(self.blockSource,dtRow,dtCol);
+
+
+        cc.log(dir);
+    },
+
+    getNeighborBlock :function(blockRef,deltaRow,deltaCol){
+
+        var self = this;
+        var r = blockRef.getRow();
+        var c = blockRef.getCol();
+        r = r + deltaRow;
+        c = c + deltaCol;
+        return self._blocks[r * GlobalPara.columns + c];
+
     }
-    
+
 
 });
 
