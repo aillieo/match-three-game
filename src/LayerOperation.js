@@ -29,6 +29,7 @@ var LayerOperation = cc.Layer.extend({
             target : self,
             eventName: "ENABLE_TOUCH",
             callback: function (event) {
+                var self = event.getCurrentTarget();
                 self._isTouchEnabled = true;
             }
         });
@@ -40,6 +41,7 @@ var LayerOperation = cc.Layer.extend({
             target : self,
             eventName: "DISABLE_TOUCH",
             callback: function (event) {
+                var self = event.getCurrentTarget();
                 self._isTouchEnabled = false;
             }
         });
@@ -54,17 +56,22 @@ var LayerOperation = cc.Layer.extend({
 
     onTouchBegan:function(touch , event){
 
-        cc.log("touch began");
+
 
         if(!this._isTouchEnabled) {
             //return false;
         }
+
+        //cc.log("touch began");
 
         this._moveEnded = false;
 
 
         event.getCurrentTarget().touchStartX = touch.getLocation().x;
         event.getCurrentTarget().touchStartY = touch.getLocation().y;
+
+
+
 
         return true;
 
@@ -87,17 +94,51 @@ var LayerOperation = cc.Layer.extend({
         var deltaY = touchY - touchStartY;
 
 
-        var eve = new cc.EventCustom("OPERATION");
-        var data = {
-            pt : new cc.Point(touchStartX,touchStartY),
-            dir : "down"
-        };
-        eve.setUserData(data);
 
-        cc.eventManager.dispatchCustomEvent(eve);
+        var tmpDir = "";
+        if(deltaX >10){
 
-        cc.log("touch moved",deltaX,deltaY);
+            tmpDir = "right";
+
+        }
+        else if (deltaX < -10) {
+
+            tmpDir = "left";
+
+        }
+        else if (deltaY >10){
+
+            tmpDir = "up";
+        }
+        else if (deltaY < -10) {
+
+            tmpDir = "down";
+
+        }
+
+
+        if(tmpDir == ""){
+
+            return;
+
+        }
+
+
         this._moveEnded = true;
+
+
+        //var eve = new cc.EventCustom("OPERATION");
+        var dat = {
+            pt : new cc.Point(touchStartX,touchStartY),
+            dir : tmpDir
+        };
+        //eve.setUserData(data);
+
+        //cc.eventManager.dispatchCustomEvent("OPERATION");
+        cc.eventManager.dispatchCustomEvent("OPERATION",dat);
+
+
+        cc.log("touch moved");
 
     }
 

@@ -9,7 +9,7 @@ var LayerBlocks = cc.Layer.extend({
     _chainFinder:null,
     _basePoint:null,
     _blockSource:null,
-    _blackTarget:null,
+    _blockTarget:null,
     _blocks:[],
     _hasBlockAnimation:true,
     //_blocksToRemove:[],
@@ -303,22 +303,20 @@ var LayerBlocks = cc.Layer.extend({
 
     },
 
-    getBlockContainingPoint:function(pt){
 
+    getBlockContainingPoint : function (p) {
+
+
+
+        var self = this;
 
         var length = self._blocks.length;
         for (var i =0 ; i<length ;i++){
-            if(cc.rectContainsPoint(this._blocks[i].getBoudingBox(),pt)){
-                cc.log(i);
+            if(cc.rectContainsPoint(this._blocks[i].getBoundingBox(),p)){
+
 
                 return this._blocks[i];
             }
-
-
-
-
-
-
         }
 
 
@@ -329,36 +327,63 @@ var LayerBlocks = cc.Layer.extend({
 
     handleOperation:function(event){
 
-        cc.log("handle");
 
-        var eve = event.getUserData();
-        var pt = eve.pt;
-        var dir = eve.dir;
-
-        var self = this;
+        var self = event.getCurrentTarget();
 
 
-        self._blockSource = self.getBlockContainingPoint(pt);
+
+
+        var dat = event.getUserData();
+
+
+        var p = dat.pt;
+        var dir = dat.dir;
+
+
+
+        self._blockSource = self.getBlockContainingPoint(p);
+
+
+
+
         var dtRow = 0;
         var dtCol = 0;
-        if(dir == "down"){
+
+
+        if(dir == "up"){
+            dtRow = 1;
+        }
+        else if(dir == "down"){
             dtRow = -1;
+        }
+        else if(dir == "left"){
+            dtCol = -1;
+        }
+        else if(dir == "right"){
+            dtCol = 1;
         }
 
 
-        _blackTarget = self.getNeighborBlock(self.blockSource,dtRow,dtCol);
-
+        self._blockTarget = self.getNeighborBlock(self._blockSource,dtRow,dtCol);
 
         cc.log(dir);
+
+        self._blockSource.setScale(0.5);
+        self._blockTarget.setScale(0.5);
+
+
+
     },
 
     getNeighborBlock :function(blockRef,deltaRow,deltaCol){
 
         var self = this;
+
         var r = blockRef.getRow();
         var c = blockRef.getCol();
         r = r + deltaRow;
         c = c + deltaCol;
+
         return self._blocks[r * GlobalPara.columns + c];
 
     }

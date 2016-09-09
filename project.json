@@ -20,8 +20,6 @@
         "src/GlobalPara.js",
         "src/LayerUI.js",
         "src/BlockCreator.js",
-        "src/ChainFinder.js",
-        "src/TouchOperation.js"
-        
+        "src/ChainFinder.js"
     ]
 }
