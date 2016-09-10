@@ -14,6 +14,8 @@ var LayerBlocks = cc.Layer.extend({
     _hasBlockAnimation:true,
     _needSwapAgain:false,
     _needFillWithNewBlocks:false,
+    _layerOperationEnabled:false,
+    _offsetY:200,
     ctor:function () {
 
 
@@ -73,7 +75,7 @@ var LayerBlocks = cc.Layer.extend({
 
 
         var px = 0.5* (size.width - GlobalPara.columns * itemWidth - (GlobalPara.columns - 1)* GlobalPara.blockGap) + 0.5*itemWidth;
-        var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth + 400;
+        var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth + self._offsetY;
         self._basePoint = new cc.Point(px,py);
 
         self._blocks = new Array(GlobalPara.columns * GlobalPara.rows);
@@ -176,9 +178,11 @@ var LayerBlocks = cc.Layer.extend({
 
                     }
                     else{
+                        if(!self._layerOperationEnabled) {
 
-                        cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
-
+                            self._layerOperationEnabled = true;
+                            cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
+                        }
                     }
                 }
             }
@@ -187,8 +191,11 @@ var LayerBlocks = cc.Layer.extend({
         }
         else{
 
-            //cc.eventManager.dispatchCustomEvent("DISABLE_TOUCH");
+            if(self._layerOperationEnabled) {
 
+                self._layerOperationEnabled = false;
+                cc.eventManager.dispatchCustomEvent("DISABLE_TOUCH");
+            }
 
         }
 

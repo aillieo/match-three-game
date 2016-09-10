@@ -6,6 +6,8 @@ var SceneMain = cc.Scene.extend({
         this.addChild(layer1);
         var layer2 = new LayerOperation();
         this.addChild(layer2);
+        var layer3 = new LayerUI();
+        this.addChild(layer3);
     }
 });
 

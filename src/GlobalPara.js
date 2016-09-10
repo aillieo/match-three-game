@@ -6,8 +6,8 @@ var GlobalPara = {
 
     blockWidth : 90,
     blockTypes : 5,
-    columns : 7,
-    rows: 12,
+    columns : 6,
+    rows: 8,
     blockGap : 5
 
 

@@ -57,14 +57,14 @@ var LayerOperation = cc.Layer.extend({
     onTouchBegan:function(touch , event){
 
 
-
-        if(!this._isTouchEnabled) {
-            //return false;
+        var self = event.getCurrentTarget();
+        if(!self._isTouchEnabled) {
+            return false;
         }
 
         //cc.log("touch began");
 
-        this._moveEnded = false;
+        self._moveEnded = false;
 
 
         event.getCurrentTarget().touchStartX = touch.getLocation().x;
@@ -81,7 +81,8 @@ var LayerOperation = cc.Layer.extend({
     onTouchMoved:function(touch, event){
 
 
-        if(this._moveEnded){
+        var self = event.getCurrentTarget();
+        if(self._moveEnded){
             return;
         }
 
@@ -124,7 +125,7 @@ var LayerOperation = cc.Layer.extend({
         }
 
 
-        this._moveEnded = true;
+        self._moveEnded = true;
 
 
         //var eve = new cc.EventCustom("OPERATION");
@@ -134,7 +135,6 @@ var LayerOperation = cc.Layer.extend({
         };
         //eve.setUserData(data);
 
-        //cc.eventManager.dispatchCustomEvent("OPERATION");
         cc.eventManager.dispatchCustomEvent("OPERATION",dat);
 
 
