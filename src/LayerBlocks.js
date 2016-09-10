@@ -12,7 +12,7 @@ var LayerBlocks = cc.Layer.extend({
     _blockTarget:null,
     _blocks:[],
     _hasBlockAnimation:true,
-    //_blocksToRemove:[],
+    _needSwapAgain:false,
     _needFillWithNewBlocks:false,
     ctor:function () {
 
@@ -73,7 +73,7 @@ var LayerBlocks = cc.Layer.extend({
 
 
         var px = 0.5* (size.width - GlobalPara.columns * itemWidth - (GlobalPara.columns - 1)* GlobalPara.blockGap) + 0.5*itemWidth;
-        var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth;
+        var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth + 400;
         self._basePoint = new cc.Point(px,py);
 
         self._blocks = new Array(GlobalPara.columns * GlobalPara.rows);
@@ -158,17 +158,24 @@ var LayerBlocks = cc.Layer.extend({
                 //self._chainFinder.checkChains(self._blocks);
                 if(self._chainFinder.checkChains(self._blocks))
                 {
-
+                    self._needSwapAgain = false;
                     self.removeBlocks();
                 }
                 else{
+
+
+                    if(self._needSwapAgain){
+
+
+                        self.swapBlockPos(self._blockTarget, self._blockSource);
+                        self._needSwapAgain = false;
+                    }
 
 
                     if(self._chainFinder.checkDeath(self._blocks)){
 
                     }
                     else{
-
 
                         cc.eventManager.dispatchCustomEvent("ENABLE_TOUCH");
 
@@ -366,12 +373,12 @@ var LayerBlocks = cc.Layer.extend({
 
         self._blockTarget = self.getNeighborBlock(self._blockSource,dtRow,dtCol);
 
-        cc.log(dir);
+        //cc.log(dir);
 
-        self._blockSource.setScale(0.5);
-        self._blockTarget.setScale(0.5);
-
-
+        //self._blockSource.setScale(0.5);
+        //self._blockTarget.setScale(0.5);
+        self.swapBlockPos(self._blockTarget, self._blockSource);
+        self._needSwapAgain = true;
 
     },
 
@@ -385,6 +392,67 @@ var LayerBlocks = cc.Layer.extend({
         c = c + deltaCol;
 
         return self._blocks[r * GlobalPara.columns + c];
+
+    },
+
+    swapBlockPos : function(block1,block2){
+
+
+        if (!block1 || !block2) {
+            return;
+        }
+
+
+
+        var self = this;
+
+        var row1 = block1.getRow();
+        var col1 = block1.getCol();
+        var row2 = block2.getRow();
+        var col2 = block2.getCol();
+        //cc.log("row1:",row1,"row2:",row2);
+        //cc.log("col1:",col1,"col2:",col2);
+
+        var index1 = self._blocks.indexOf(block1);
+        var index2 = self._blocks.indexOf(block2);
+
+        var pos1 = self.getPositionByDim(row1,col1);
+        var pos2 = self.getPositionByDim(row2,col2);
+
+        //cc.log("pos1",pos1,block1.getPosition());
+
+
+
+
+        var mt1 = cc.moveTo(0.5,pos2);
+        var mt2 = cc.moveTo(0.5,pos1);
+
+        //cc.log(mt1);
+        //cc.log(mt2);
+
+
+
+        block1.runAction(mt1);
+        block2.runAction(mt2);
+
+
+
+        self._hasBlockAnimation = true;
+
+
+
+        block1.setCol(col2);
+        block1.setRow(row2);
+        block2.setCol(col1);
+        block2.setRow(row1);
+
+
+        self._blocks[index1] = block2;
+        self._blocks[index2] = block1;
+
+
+
+        //cc.log("finish",col1,row1,index1,col2,row2,index2);
 
     }
 

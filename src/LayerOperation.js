@@ -138,7 +138,7 @@ var LayerOperation = cc.Layer.extend({
         cc.eventManager.dispatchCustomEvent("OPERATION",dat);
 
 
-        cc.log("touch moved");
+        //cc.log("touch moved");
 
     }
 
