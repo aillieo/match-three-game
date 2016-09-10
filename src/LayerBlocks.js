@@ -85,7 +85,7 @@ var LayerBlocks = cc.Layer.extend({
 
             for(var c = 0; c<GlobalPara.columns; c++){
 
-                self.createAndDropBlock(r,c);
+                self.createAndDropBlock(r,c,500);
 
             }
 
@@ -96,25 +96,26 @@ var LayerBlocks = cc.Layer.extend({
     },
 
 
-    createAndDropBlock:function(row,col) {
+
+
+    createAndDropBlock:function(row,col,dropHeight) {
 
         var self = this;
-        var size = cc.winSize;
 
-        //var block = new BlockElement(row,col);
         var block = self._blockCreator.createRandomBlock();
         block.setRow(row);
         block.setCol(col);
 
+        //var dropHeight = blanks * (GlobalPara.blockGap+GlobalPara.blockWidth);
         var pDest = self.getPositionByDim(row,col);
-        var pFrom = new cc.Point(pDest.x , pDest.y + 500);
+        var pFrom = new cc.Point(pDest.x , pDest.y + dropHeight);
         block.setPosition(pFrom);
         self.addChild(block);
         self._blocks[row * GlobalPara.columns + col] = block;
-        //cc.log(row * GlobalPara.columns + col);
 
         block.stopAllActions();
-        var mv = new cc.moveTo(0.5,pDest);
+        var t = dropHeight / GlobalPara.blockMoveSpeed;
+        var mv = new cc.moveTo(t,pDest);
         block.runAction(mv);
 
 
@@ -236,7 +237,7 @@ var LayerBlocks = cc.Layer.extend({
 
             if(self._blocks[i].isToBeRemoved()){
 
-                var fo =  cc.fadeOut(0.5);
+                var fo =  cc.fadeOut(0.2);
                 var cb_1 =  cc.callFunc(setNull,self,i);
                 var cb_2 =  cc.removeSelf();
                 var cb_3 =  cc.callFunc(setNeedFill,self);
@@ -284,7 +285,8 @@ var LayerBlocks = cc.Layer.extend({
                         self._blocks[row * GlobalPara.columns + col] = null;
                         blk.setRow(row - blanks);
                         blk.stopAllActions();
-                        var mt = cc.moveTo(0.5,self.getPositionByDim(row - blanks,col));
+                        var t = (GlobalPara.blockWidth+GlobalPara.blockGap)* blanks/ GlobalPara.blockMoveSpeed;
+                        var mt = cc.moveTo(t,self.getPositionByDim(row - blanks,col));
                         blk.runAction(mt);
 
                     }
@@ -306,7 +308,7 @@ var LayerBlocks = cc.Layer.extend({
         for(var col_1 = 0; col_1<GlobalPara.columns; col_1++){
 
             for (var row_1 = GlobalPara.rows - blanksInCol[col_1]; row_1 < GlobalPara.rows; row_1++) {
-                self.createAndDropBlock(row_1, col_1);
+                self.createAndDropBlock(row_1, col_1, (GlobalPara.blockGap+GlobalPara.blockWidth)*blanksInCol[col_1]);
             }
 
         }
@@ -430,9 +432,10 @@ var LayerBlocks = cc.Layer.extend({
 
 
 
+        var t = ( GlobalPara.blockGap + GlobalPara.blockWidth) / GlobalPara.blockMoveSpeed;
 
-        var mt1 = cc.moveTo(0.5,pos2);
-        var mt2 = cc.moveTo(0.5,pos1);
+        var mt1 = cc.moveTo(t,pos2);
+        var mt2 = cc.moveTo(t,pos1);
 
         //cc.log(mt1);
         //cc.log(mt2);

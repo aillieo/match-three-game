@@ -153,6 +153,30 @@ var ChainFinder = cc.Node.extend({
 
     checkDeath : function(allBlocks){
 
+        return this.checkDeathInCol(allBlocks) && this.checkDeathInRow(allBlocks);
+    },
+
+    checkDeathInRow : function(allBlocks){
+
+        //8种情况
+        //两个相邻 找第三个 6种
+        //两个不相邻 找第三个 2种
+
+
+
+
+
+
+        return false;
+
+    },
+
+    checkDeathInCol : function(allBlocks){
+
+
+
+
+
 
         return false;
 
