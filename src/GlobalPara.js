@@ -9,7 +9,7 @@ var GlobalPara = {
     columns : 6,
     rows: 8,
     blockGap : 5,
-    blockMoveSpeed : 400
+    dropSpeedFactor : 60
 
 
 };

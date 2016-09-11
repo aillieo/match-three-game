@@ -114,8 +114,8 @@ var LayerBlocks = cc.Layer.extend({
         self._blocks[row * GlobalPara.columns + col] = block;
 
         block.stopAllActions();
-        var t = dropHeight / GlobalPara.blockMoveSpeed;
-        var mv = new cc.moveTo(t,pDest);
+        var t = Math.sqrt(dropHeight )/ GlobalPara.dropSpeedFactor;
+        var mv = new cc.jumpTo(t,pDest,0,1);
         block.runAction(mv);
 
 
@@ -285,8 +285,8 @@ var LayerBlocks = cc.Layer.extend({
                         self._blocks[row * GlobalPara.columns + col] = null;
                         blk.setRow(row - blanks);
                         blk.stopAllActions();
-                        var t = (GlobalPara.blockWidth+GlobalPara.blockGap)* blanks/ GlobalPara.blockMoveSpeed;
-                        var mt = cc.moveTo(t,self.getPositionByDim(row - blanks,col));
+                        var t = Math.sqrt((GlobalPara.blockWidth+GlobalPara.blockGap)* blanks)/ GlobalPara.dropSpeedFactor;
+                        var mt = cc.jumpTo(t,self.getPositionByDim(row - blanks,col),0,1);
                         blk.runAction(mt);
 
                     }
@@ -432,7 +432,7 @@ var LayerBlocks = cc.Layer.extend({
 
 
 
-        var t = ( GlobalPara.blockGap + GlobalPara.blockWidth) / GlobalPara.blockMoveSpeed;
+        var t = 0.12*( GlobalPara.blockGap + GlobalPara.blockWidth) / GlobalPara.dropSpeedFactor;
 
         var mt1 = cc.moveTo(t,pos2);
         var mt2 = cc.moveTo(t,pos1);
