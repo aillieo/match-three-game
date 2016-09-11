@@ -153,21 +153,148 @@ var ChainFinder = cc.Node.extend({
 
     checkDeath : function(allBlocks){
 
-        return this.checkDeathInCol(allBlocks) && this.checkDeathInRow(allBlocks);
+        return this.checkDeathInRow(allBlocks) && this.checkDeathInCol(allBlocks) ;
     },
 
     checkDeathInRow : function(allBlocks){
 
-        //8种情况
-        //两个相邻 找第三个 6种
-        //两个不相邻 找第三个 2种
+        //total 8 cases
+        //
+        //when have 2 blocks adjacent to each other and find the third one
+        //there are 6 cases a-f shown below
+        //
+        ///////|C|///|E|///////////
+        /////|A|/|O|o|/|B|/////////
+        ///////|D|///|F|///////////
+        //
+        //when have 2 blocks not adjacent and find the third one
+        //there are 2 cases g-h shown below
+        //
+        ///////////|G|/////////////
+        /////////|O|/|o|///////////
+        ///////////|H|/////////////
 
 
 
 
+        var cols = GlobalPara.columns;
+        var rows = GlobalPara.rows;
 
 
-        return false;
+        //first 6 cases
+        var getBlockInPosA = function (currentRow,currentCol) {
+            //currentRow;
+            currentCol -= 2;
+            if(currentCol>=0){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosB = function (currentRow,currentCol) {
+            //currentRow;
+            currentCol += 3;
+            if(currentCol<cols) {
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosC = function (currentRow,currentCol) {
+            currentRow += 1;
+            currentCol -= 1;
+                if(currentCol>=0 && currentRow<rows){
+                    return allBlocks[currentRow * cols + currentCol];
+                }
+        };
+        var getBlockInPosD = function (currentRow,currentCol) {
+            currentRow -= 1;
+            currentCol -= 1;
+            if(currentCol>=0 && currentRow>=0){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosE = function (currentRow,currentCol) {
+            currentRow += 1;
+            currentCol += 2;
+            if(currentCol<cols && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosF = function (currentRow,currentCol) {
+            currentRow -= 1;
+            currentCol += 2;
+            if(currentCol>=0 && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+
+        //last 2 cases
+        var getBlockInPosG = function (currentRow,currentCol) {
+            currentRow += 1;
+            currentCol += 1;
+            if(currentCol<cols && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosH = function (currentRow,currentCol) {
+            currentRow -= 1;
+            currentCol += 1;
+            if(currentCol>=0 && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+
+
+        for(var r = 0 ; r < rows ; r++)
+        {
+            for(var c = 0 ; c +1  < cols ;c++) {
+
+                var idx = allBlocks[r * cols + c].getTypeIndex();
+
+                //first 6 cases
+                if ( idx == allBlocks[r * cols + c + 1].getTypeIndex()){
+
+                    if(getBlockInPosA(r,c) &&  getBlockInPosA(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posA");
+                        return false;
+                    }
+                    if(getBlockInPosB(r,c) &&  getBlockInPosB(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posB");
+                        return false;
+                    }
+                    if(getBlockInPosC(r,c) &&  getBlockInPosC(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posC");
+                        return false;
+                    }
+                    if(getBlockInPosD(r,c) &&  getBlockInPosD(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posD");
+                        return false;
+                    }
+                    if(getBlockInPosE(r,c) &&  getBlockInPosE(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posE");
+                        return false;
+                    }
+                    if(getBlockInPosF(r,c) &&  getBlockInPosF(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posF");
+                        return false;
+                    }
+
+                }
+
+                //last 2 cases
+                if(c + 2< cols && idx == allBlocks[r * cols + c + 2].getTypeIndex()){
+                    if(getBlockInPosG(r,c) &&  getBlockInPosG(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posG");
+                        return false;
+                    }
+                    if(getBlockInPosH(r,c) &&  getBlockInPosH(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"row find posH");
+                        return false;
+                    }
+                }
+
+            }
+        }
+
+
+        return true;
 
     },
 
@@ -175,10 +302,150 @@ var ChainFinder = cc.Node.extend({
 
 
 
+        //total 8 cases
+        //
+        //when have 2 blocks adjacent to each other and find the third one
+        //there are 6 cases a-f shown below
+        //
+        ////////////////////////////
+        ///////////|A|//////////////
+        /////////|B|/|C|////////////
+        ///////////|o|//////////////
+        ///////////|O|//////////////
+        /////////|D|/|E|////////////
+        ///////////|F|//////////////
+        ////////////////////////////
+        //
+        //when have 2 blocks not adjacent and find the third one
+        //there are 2 cases g-h shown below
+        //
+        ////////////////////////////
+        ///////////|o|/////////////
+        /////////|G|/|H|///////////
+        ///////////|O|/////////////
+        ////////////////////////////
 
 
 
-        return false;
+
+
+        var cols = GlobalPara.columns;
+        var rows = GlobalPara.rows;
+
+
+        //first 6 cases
+        var getBlockInPosA = function (currentRow,currentCol) {
+            currentRow += 3;
+            if(currentRow < rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosB = function (currentRow,currentCol) {
+            currentRow += 2;
+            currentCol -= 1;
+            if(currentCol>=0 && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosC = function (currentRow,currentCol) {
+            currentRow += 2;
+            currentCol += 1;
+            if(currentCol<cols && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosD = function (currentRow,currentCol) {
+            currentRow -= 1;
+            currentCol -= 1;
+            if(currentCol>=0 && currentRow>=0){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosE = function (currentRow,currentCol) {
+            currentRow -= 1;
+            currentCol += 1;
+            if(currentCol<cols && currentRow>=0){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosF = function (currentRow,currentCol) {
+            currentRow -= 2;
+            if(currentRow>=0 ){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+
+        //last 2 cases
+        var getBlockInPosG = function (currentRow,currentCol) {
+            currentRow += 1;
+            currentCol -= 1;
+            if(currentCol>=0 && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+        var getBlockInPosH = function (currentRow,currentCol) {
+            currentRow += 1;
+            currentCol += 1;
+            if(currentCol<cols && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
+        };
+
+
+        for(var r = 0 ; r + 1< rows ; r++)
+        {
+            for(var c = 0 ; c< cols ;c++) {
+
+                var idx = allBlocks[r * cols + c].getTypeIndex();
+
+                //first 6 cases
+                if ( idx == allBlocks[(r+1) * cols + c].getTypeIndex()){
+
+                    if(getBlockInPosA(r,c) &&  getBlockInPosA(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posA");
+                        return false;
+                    }
+                    if(getBlockInPosB(r,c) &&  getBlockInPosB(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posB");
+                        return false;
+                    }
+                    if(getBlockInPosC(r,c) &&  getBlockInPosC(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posC");
+                        return false;
+                    }
+                    if(getBlockInPosD(r,c) &&  getBlockInPosD(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posD");
+                        return false;
+                    }
+                    if(getBlockInPosE(r,c) &&  getBlockInPosE(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posE");
+                        return false;
+                    }
+                    if(getBlockInPosF(r,c) &&  getBlockInPosF(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posF");
+                        return false;
+                    }
+
+                }
+
+                //last 2 cases
+                if(r + 2 < rows && idx == allBlocks[(r + 2) * cols + c ].getTypeIndex()){
+                    if(getBlockInPosG(r,c) &&  getBlockInPosG(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posG");
+                        return false;
+                    }
+                    if(getBlockInPosH(r,c) &&  getBlockInPosH(r,c).getTypeIndex() == idx) {
+                        cc.log(idx,"col find posH");
+                        return false;
+                    }
+                }
+
+            }
+        }
+
+
+        return true;
+
 
     },
 

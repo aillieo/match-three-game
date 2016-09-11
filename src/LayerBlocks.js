@@ -15,7 +15,8 @@ var LayerBlocks = cc.Layer.extend({
     _needSwapAgain:false,
     _needFillWithNewBlocks:false,
     _layerOperationEnabled:false,
-    _offsetY:200,
+    _needCheckDeath:true,
+    _offsetY:-120,
     ctor:function () {
 
 
@@ -95,9 +96,6 @@ var LayerBlocks = cc.Layer.extend({
 
     },
 
-
-
-
     createAndDropBlock:function(row,col,dropHeight) {
 
         var self = this;
@@ -131,7 +129,6 @@ var LayerBlocks = cc.Layer.extend({
         return new cc.Point(x,y);
 
     },
-
 
     update : function (delta) {
 
@@ -172,12 +169,21 @@ var LayerBlocks = cc.Layer.extend({
 
                         self.swapBlockPos(self._blockTarget, self._blockSource);
                         self._needSwapAgain = false;
+                        return;
                     }
 
 
-                    if(self._chainFinder.checkDeath(self._blocks)){
+                    if(self._needCheckDeath){
+
+                        if(!self._chainFinder.checkDeath(self._blocks)){
+                            self._needCheckDeath = false;
+                        }
+                        else{
+                            self.shuffleBlocks();
+                        }
 
                     }
+
                     else{
                         if(!self._layerOperationEnabled) {
 
@@ -203,7 +209,6 @@ var LayerBlocks = cc.Layer.extend({
 
 
     },
-
 
     removeBlocks : function () {
 
@@ -244,18 +249,20 @@ var LayerBlocks = cc.Layer.extend({
                 var seq =  cc.sequence(fo,cb_1,cb_2,cb_3);
                 self._blocks[i].runAction(seq);
 
+                self.addScore(10);
+
             }
 
 
         }
 
         self._hasBlockAnimation = true;
+        self._needCheckDeath = true;
 
 
 
 
     },
-
 
     fillWithNewBlocks : function () {
 
@@ -346,16 +353,10 @@ var LayerBlocks = cc.Layer.extend({
 
         var self = event.getCurrentTarget();
 
-
-
-
         var dat = event.getUserData();
-
 
         var p = dat.pt;
         var dir = dat.dir;
-
-
 
         self._blockSource = self.getBlockContainingPoint(p);
 
@@ -399,8 +400,11 @@ var LayerBlocks = cc.Layer.extend({
         var c = blockRef.getCol();
         r = r + deltaRow;
         c = c + deltaCol;
+        if(c>= 0 && c< GlobalPara.columns && r>=0 && r < GlobalPara.rows){
+            return self._blocks[r * GlobalPara.columns + c];
 
-        return self._blocks[r * GlobalPara.columns + c];
+        }
+
 
     },
 
@@ -464,7 +468,57 @@ var LayerBlocks = cc.Layer.extend({
 
         //cc.log("finish",col1,row1,index1,col2,row2,index2);
 
+    },
+
+    shuffleBlocks : function () {
+
+        cc.log("shuffle");
+
+        var self = this;
+
+        self._blocks.sort(function(blk1,blk2){
+            return blk1.getShuffleTag() - blk2.getShuffleTag();
+        });
+
+
+        var cols = GlobalPara.columns;
+        var rows = GlobalPara.rows;
+        for(var r = 0;r<rows ; r++){
+
+            for(var c =0; c<cols;c++){
+
+                var block = self._blocks[r*cols + c];
+                block.setCol(c);
+                block.setRow(r);
+                var pos = self.getPositionByDim(r,c);
+
+                var fo = cc.fadeOut(0.2);
+                var cb = cc.callFunc(function (target,pos) {
+                    target.setPosition(pos);
+                },block,pos);
+                var fi = cc.fadeIn(0.2);
+                var seq = cc.sequence(fo,cb,fi);
+
+                block.runAction(seq);
+
+            }
+
+        }
+
+        self._hasBlockAnimation = true;
+
+
+    },
+
+    addScore : function (score) {
+
+        var dat = {
+            score : score
+        };
+        cc.eventManager.dispatchCustomEvent("ADD_SCORE",dat);
+
     }
+
 
 
 });

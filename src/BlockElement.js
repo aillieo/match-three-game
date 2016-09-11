@@ -15,6 +15,7 @@ var BlockElement = cc.Sprite.extend({
         this._super();
 
         var self = this;
+        self.setCascadeOpacityEnabled(true);
         self.setTexture(res.blank);
         self.setColor(cc.color(98,98,98));
         var wid = GlobalPara.blockWidth;
@@ -72,6 +73,12 @@ var BlockElement = cc.Sprite.extend({
     markToRemove : function(){
        this._willBeRemoved = true;
     },
+    
+    getShuffleTag : function () {
+
+        return cc.random0To1();
+
+    }
 
 
 });
