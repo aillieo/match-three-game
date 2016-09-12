@@ -16,6 +16,7 @@ var LayerBlocks = cc.Layer.extend({
     _needFillWithNewBlocks:false,
     _layerOperationEnabled:false,
     _needCheckDeath:true,
+    upperDisplayBound:0,
     _offsetY:-120,
     ctor:function () {
 
@@ -79,6 +80,10 @@ var LayerBlocks = cc.Layer.extend({
         var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth + self._offsetY;
         self._basePoint = new cc.Point(px,py);
 
+
+        var matrixHeight = (itemWidth+GlobalPara.blockGap)*GlobalPara.rows;
+        self._upperDisplayBound = py + matrixHeight + 0*itemWidth;
+
         self._blocks = new Array(GlobalPara.columns * GlobalPara.rows);
         self._blocksToRemove = [];
 
@@ -86,7 +91,7 @@ var LayerBlocks = cc.Layer.extend({
 
             for(var c = 0; c<GlobalPara.columns; c++){
 
-                self.createAndDropBlock(r,c,500);
+                self.createAndDropBlock(r,c,matrixHeight);
 
             }
 
@@ -103,6 +108,8 @@ var LayerBlocks = cc.Layer.extend({
         var block = self._blockCreator.createRandomBlock();
         block.setRow(row);
         block.setCol(col);
+        
+        block.setVisible(false);
 
         //var dropHeight = blanks * (GlobalPara.blockGap+GlobalPara.blockWidth);
         var pDest = self.getPositionByDim(row,col);
@@ -135,6 +142,7 @@ var LayerBlocks = cc.Layer.extend({
         //cc.log(delta);
 
         var self = this;
+        
 
         if (self._hasBlockAnimation) {
             self._hasBlockAnimation = false;
@@ -142,8 +150,19 @@ var LayerBlocks = cc.Layer.extend({
             for (var i = 0; i < len; i++) {
                 var blk = self._blocks[i];
                 if (blk!=undefined && blk.getNumberOfRunningActions() > 0) {
-                    self._hasBlockAnimation  = true;
-                    break;
+                    
+                    if (!self._hasBlockAnimation) {
+                        self._hasBlockAnimation  = true;
+                    }
+                    if (blk.y >self._upperDisplayBound) {
+                        
+                        blk.setVisible(false);
+                    }
+                    else {
+                        
+                        blk.setVisible(true);
+                    }
+                    
                 }
             }
         }
