@@ -10,6 +10,7 @@ var BlockElement = cc.Sprite.extend({
     _willBeRemoved:false,
     _isFrozen:false,
     _withSuperPower:0,
+    _typeIndexInitialized:false,
     ctor:function () {
 
         this._super();
@@ -26,7 +27,11 @@ var BlockElement = cc.Sprite.extend({
     
     setTypeIndex:function(typeIndex){
       
-              
+        if (this._typeIndexInitialized) {
+        
+            return;
+        }
+        this._typeIndexInitialized = true;
         this._typeIndex = typeIndex;
         var self = this;
 
@@ -37,6 +42,13 @@ var BlockElement = cc.Sprite.extend({
         indexLabel.y = self.getContentSize().height/2;
 
         self.addChild(indexLabel, 5);
+        
+        var rgbR = (GlobalPara.blockTypes - this._typeIndex) * 255/ GlobalPara.blockTypes;
+        var rgbB = this._typeIndex * 255/ GlobalPara.blockTypes;
+        var rgbG = 255- Math.abs(rgbR - rgbB);
+        self.setColor(cc.color(rgbR, rgbG, rgbB));
+        
+        
       
     },
 
