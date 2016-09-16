@@ -78,7 +78,7 @@ var LayerBlocks = cc.Layer.extend({
 
         var px = 0.5* (size.width - GlobalPara.columns * itemWidth - (GlobalPara.columns - 1)* GlobalPara.blockGap) + 0.5*itemWidth;
         var py = 0.5* (size.height - GlobalPara.rows * itemWidth - (GlobalPara.rows - 1)* GlobalPara.blockGap) + 0.5*itemWidth + self._offsetY;
-        self._basePoint = new cc.Point(px,py);
+        self._basePoint = cc.p(px,py);
 
 
         var matrixHeight = (itemWidth+GlobalPara.blockGap)*GlobalPara.rows;
@@ -113,7 +113,7 @@ var LayerBlocks = cc.Layer.extend({
 
         //var dropHeight = blanks * (GlobalPara.blockGap+GlobalPara.blockWidth);
         var pDest = self.getPositionByDim(row,col);
-        var pFrom = new cc.Point(pDest.x , pDest.y + dropHeight);
+        var pFrom = cc.p(pDest.x , pDest.y + dropHeight);
         block.setPosition(pFrom);
         self.addChild(block);
         self._blocks[row * GlobalPara.columns + col] = block;
@@ -133,7 +133,7 @@ var LayerBlocks = cc.Layer.extend({
         var self = this;
         var x = self._basePoint.x + col*(width + GlobalPara.blockGap);
         var y = self._basePoint.y + row*(width + GlobalPara.blockGap);
-        return new cc.Point(x,y);
+        return cc.p(x,y);
 
     },
 

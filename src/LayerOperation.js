@@ -130,7 +130,7 @@ var LayerOperation = cc.Layer.extend({
 
         //var eve = new cc.EventCustom("OPERATION");
         var dat = {
-            pt : new cc.Point(touchStartX,touchStartY),
+            pt : cc.p(touchStartX,touchStartY),
             dir : tmpDir
         };
         //eve.setUserData(data);
