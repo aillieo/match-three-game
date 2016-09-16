@@ -23,47 +23,7 @@ var ChainFinder = cc.Node.extend({
         var length = allBlocks.length;
         for (var i =0 ; i<length ;i++){
 
-
-            var chainInRow = self.getChainInRow(allBlocks[i],allBlocks);
-            var chainInCol = self.getChainInCol(allBlocks[i],allBlocks);
-
-            var arrayPush = function (ary,itm) {
-                if(ary.indexOf(itm)==-1){
-                    ary.push(itm);
-                    itm.markToRemove();
-                }
-                return ary;
-            };
-
-
-            var lenRow = chainInRow.length;
-            var lenCol = chainInCol.length;
-
-
-
-            blocksToRemoveRow = chainInRow.reduce(arrayPush,blocksToRemoveRow);
-            if(lenRow >=5)
-            {
-                chainInRow[0].setSuperPower(3);
-            }
-            else if(lenRow == 4){
-
-                chainInRow[0].setSuperPower(1);
-
-            }
-
-
-
-            blocksToRemoveCol = chainInCol.reduce(arrayPush,blocksToRemoveCol);
-                if(lenCol >=5)
-                {
-                    chainInCol[0].setSuperPower(3);
-                }
-                else if(lenCol == 4){
-                    chainInCol[0].setSuperPower(1);
-                }
-
-
+            self.checkChainsForCertainBlock(allBlocks[i],allBlocks,blocksToRemoveRow,blocksToRemoveCol);
 
         }
 
@@ -102,6 +62,53 @@ var ChainFinder = cc.Node.extend({
         
     },
 
+
+    checkChainsForCertainBlock : function(certainBlock,allBlocks,blocksToRemoveRow,blocksToRemoveCol){
+
+
+        var self = this;
+
+        var chainInRow = self.getChainInRow(certainBlock,allBlocks);
+        var chainInCol = self.getChainInCol(certainBlock,allBlocks);
+
+        var arrayPush = function (ary,itm) {
+            if(ary.indexOf(itm)==-1){
+                ary.push(itm);
+                itm.markToRemove();
+            }
+            return ary;
+        };
+
+
+        var lenRow = chainInRow.length;
+        var lenCol = chainInCol.length;
+
+
+
+        blocksToRemoveRow = chainInRow.reduce(arrayPush,blocksToRemoveRow);
+        if(lenRow >=5)
+        {
+            chainInRow[0].setSuperPower(3);
+        }
+        else if(lenRow == 4){
+
+            chainInRow[0].setSuperPower(1);
+
+        }
+
+
+
+        blocksToRemoveCol = chainInCol.reduce(arrayPush,blocksToRemoveCol);
+        if(lenCol >=5)
+        {
+            chainInCol[0].setSuperPower(3);
+        }
+        else if(lenCol == 4){
+            chainInCol[0].setSuperPower(1);
+        }
+
+
+    },
 
 
     getChainInCol : function (block,allBlocks) {
@@ -497,6 +504,51 @@ var ChainFinder = cc.Node.extend({
 
 
         return true;
+
+
+    },
+
+    checkChainsAfterOperation : function (blockSource, blockTarget, allBlocks) {
+
+        var self = this;
+        var blocksToRemoveRow = [];
+        var blocksToRemoveCol = [];
+
+        self.checkChainsForCertainBlock(blockSource,allBlocks,blocksToRemoveRow,blocksToRemoveCol);
+        self.checkChainsForCertainBlock(blockTarget,allBlocks,blocksToRemoveRow,blocksToRemoveCol);
+
+        var length = allBlocks.length;
+        for (var k =0 ; k<length ; k++){
+
+            allBlocks[k].ignoreCheckInRow = false;
+            allBlocks[k].ignoreCheckInCol = false;
+
+        }
+
+
+        if(blocksToRemoveRow.length ==0 && blocksToRemoveCol.length == 0){
+
+            return false;
+
+        }
+
+
+        len = blocksToRemoveRow.length;
+        for(var j = 0 ; j< len ;j++){
+
+            if(blocksToRemoveCol.indexOf(blocksToRemoveRow[j]) != -1){
+
+                blocksToRemoveRow[j].setSuperPower(2);
+            }
+
+
+        }
+
+
+        return true;
+
+
+
 
 
     },

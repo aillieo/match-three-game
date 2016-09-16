@@ -166,6 +166,7 @@ var LayerBlocks = cc.Layer.extend({
                 }
             }
         }
+
         if (!self._hasBlockAnimation) {
 
             if(self._needFillWithNewBlocks){
@@ -174,11 +175,14 @@ var LayerBlocks = cc.Layer.extend({
             }
             else
             {
-                //self._chainFinder.checkChains(self._blocks);
-                if(self._chainFinder.checkChains(self._blocks))
-                {
+                if(self._needSwapAgain && self._chainFinder.checkChainsAfterOperation(self._blockSource, self._blockTarget, self._blocks)) {
                     self._needSwapAgain = false;
                     self.removeBlocks();
+                }
+                else if(!self._needSwapAgain && self._chainFinder.checkChains(self._blocks)){
+
+                    self.removeBlocks();
+
                 }
                 else{
 
