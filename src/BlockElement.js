@@ -9,8 +9,10 @@ var BlockElement = cc.Sprite.extend({
     _typeIndex:0,
     _willBeRemoved:false,
     _isFrozen:false,
-    _withSuperPower:0,
+    _withSuperPower:0,   // 0:normal, 1: 4 inRow or 4 inCol, 2: T or L type, 3: 5 or more in Row or Col
     _typeIndexInitialized:false,
+    ignoreCheckInRow: false,
+    ignoreCheckInCol: false,
     ctor:function () {
 
         this._super();
@@ -89,6 +91,34 @@ var BlockElement = cc.Sprite.extend({
     getShuffleTag : function () {
 
         return cc.random0To1();
+
+    },
+
+    getSuperPower: function (){
+
+        return this._withSuperPower;
+
+    },
+
+    setSuperPower: function (superPower) {
+
+        this._withSuperPower = superPower;
+        switch (superPower){
+
+            case 1:
+                this.setRotation(90);
+                break;
+            case 2:
+                this.setRotation(-90);
+                break;
+            case 3:
+                this.setRotation(180);
+                break;
+
+        }
+
+        this._willBeRemoved = false;
+
 
     }
 

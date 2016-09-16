@@ -17,7 +17,8 @@ var ChainFinder = cc.Node.extend({
     checkChains : function (allBlocks) {
 
         var self = this;
-        var blocksToRemove = [];
+        var blocksToRemoveRow = [];
+        var blocksToRemoveCol = [];
 
         var length = allBlocks.length;
         for (var i =0 ; i<length ;i++){
@@ -29,53 +30,83 @@ var ChainFinder = cc.Node.extend({
             var arrayPush = function (ary,itm) {
                 if(ary.indexOf(itm)==-1){
                     ary.push(itm);
+                    itm.markToRemove();
                 }
                 return ary;
             };
 
-            if (chainInRow.length >=3){
-                blocksToRemove = chainInRow.reduce(arrayPush,blocksToRemove);
+
+            var lenRow = chainInRow.length;
+            var lenCol = chainInCol.length;
+
+
+
+            blocksToRemoveRow = chainInRow.reduce(arrayPush,blocksToRemoveRow);
+            if(lenRow >=5)
+            {
+                chainInRow[0].setSuperPower(3);
             }
-            if (chainInCol.length >=3) {
-                blocksToRemove = chainInCol.reduce(arrayPush,blocksToRemove);
+            else if(lenRow == 4){
+
+                chainInRow[0].setSuperPower(1);
+
+            }
+
+
+
+            blocksToRemoveCol = chainInCol.reduce(arrayPush,blocksToRemoveCol);
+                if(lenCol >=5)
+                {
+                    chainInCol[0].setSuperPower(3);
+                }
+                else if(lenCol == 4){
+                    chainInCol[0].setSuperPower(1);
+                }
+
+
+
+        }
+
+        for (var k =0 ; k<length ; k++){
+
+            allBlocks[k].ignoreCheckInRow = false;
+            allBlocks[k].ignoreCheckInCol = false;
+
+        }
+
+
+        if(blocksToRemoveRow.length ==0 && blocksToRemoveCol.length == 0){
+
+            return false;
+
+        }
+
+
+        len = blocksToRemoveRow.length;
+        for(var j = 0 ; j< len ;j++){
+
+            if(blocksToRemoveCol.indexOf(blocksToRemoveRow[j]) != -1){
+
+                blocksToRemoveRow[j].setSuperPower(2);
             }
 
 
         }
 
 
-        //cc.log(self._blocksToRemove.length);
-        
-        length = blocksToRemove.length;
-        for(var j = 0; j<length;j++){
-
-            blocksToRemove[j].markToRemove();
-
-/*            if(blocksToRemove.indexOf(allBlocks[j]) != -1){
-                allBlocks[i].markToRemove();
-                cc.log("mark rmv");
-
-            }*/
-
-        }
-        
-        return (length>0);
+        return true;
 
 
 
-
-
-
-
-       // return blocksToRemove;
 
         
     },
-    
-    
+
+
+
     getChainInCol : function (block,allBlocks) {
 
-        if(block == null){
+        if(block == null || block.ignoreCheckInCol){
             return [];
         }
 
@@ -105,14 +136,25 @@ var ChainFinder = cc.Node.extend({
             }
         }
 
-        return blocks;
+        var len = blocks.length;
+        if(len >= 3){
+
+            for(var j = 0; j < len ; j++)
+            {
+                blocks[j].ignoreCheckInCol = true;
+            }
+
+            return blocks;
+        }
+
+        return [];
         
     },
     
     getChainInRow : function (block,allBlocks) {
 
 
-        if(block == null){
+        if(block == null || block.ignoreCheckInRow){
             return [];
         }
 
@@ -145,7 +187,17 @@ var ChainFinder = cc.Node.extend({
             }
         }
 
-        return blocks;
+        var len = blocks.length;
+        if(len>=3) {
+
+            for (var j = 0; j < len; j++) {
+                blocks[j].ignoreCheckInRow = true;
+            }
+            return blocks;
+
+        }
+
+        return [];
 
 
     },
@@ -252,27 +304,27 @@ var ChainFinder = cc.Node.extend({
                 if ( idx == allBlocks[r * cols + c + 1].getTypeIndex()){
 
                     if(getBlockInPosA(r,c) &&  getBlockInPosA(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posA");
+                        //cc.log(idx,"row find posA");
                         return false;
                     }
                     if(getBlockInPosB(r,c) &&  getBlockInPosB(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posB");
+                        //cc.log(idx,"row find posB");
                         return false;
                     }
                     if(getBlockInPosC(r,c) &&  getBlockInPosC(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posC");
+                        //cc.log(idx,"row find posC");
                         return false;
                     }
                     if(getBlockInPosD(r,c) &&  getBlockInPosD(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posD");
+                        //cc.log(idx,"row find posD");
                         return false;
                     }
                     if(getBlockInPosE(r,c) &&  getBlockInPosE(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posE");
+                        //cc.log(idx,"row find posE");
                         return false;
                     }
                     if(getBlockInPosF(r,c) &&  getBlockInPosF(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posF");
+                        //cc.log(idx,"row find posF");
                         return false;
                     }
 
@@ -281,11 +333,11 @@ var ChainFinder = cc.Node.extend({
                 //last 2 cases
                 if(c + 2< cols && idx == allBlocks[r * cols + c + 2].getTypeIndex()){
                     if(getBlockInPosG(r,c) &&  getBlockInPosG(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posG");
+                        //cc.log(idx,"row find posG");
                         return false;
                     }
                     if(getBlockInPosH(r,c) &&  getBlockInPosH(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"row find posH");
+                        //cc.log(idx,"row find posH");
                         return false;
                     }
                 }
@@ -402,27 +454,27 @@ var ChainFinder = cc.Node.extend({
                 if ( idx == allBlocks[(r+1) * cols + c].getTypeIndex()){
 
                     if(getBlockInPosA(r,c) &&  getBlockInPosA(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posA");
+                        //cc.log(idx,"col find posA");
                         return false;
                     }
                     if(getBlockInPosB(r,c) &&  getBlockInPosB(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posB");
+                        //cc.log(idx,"col find posB");
                         return false;
                     }
                     if(getBlockInPosC(r,c) &&  getBlockInPosC(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posC");
+                        //cc.log(idx,"col find posC");
                         return false;
                     }
                     if(getBlockInPosD(r,c) &&  getBlockInPosD(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posD");
+                        //cc.log(idx,"col find posD");
                         return false;
                     }
                     if(getBlockInPosE(r,c) &&  getBlockInPosE(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posE");
+                        //cc.log(idx,"col find posE");
                         return false;
                     }
                     if(getBlockInPosF(r,c) &&  getBlockInPosF(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posF");
+                        //cc.log(idx,"col find posF");
                         return false;
                     }
 
@@ -431,11 +483,11 @@ var ChainFinder = cc.Node.extend({
                 //last 2 cases
                 if(r + 2 < rows && idx == allBlocks[(r + 2) * cols + c ].getTypeIndex()){
                     if(getBlockInPosG(r,c) &&  getBlockInPosG(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posG");
+                        //cc.log(idx,"col find posG");
                         return false;
                     }
                     if(getBlockInPosH(r,c) &&  getBlockInPosH(r,c).getTypeIndex() == idx) {
-                        cc.log(idx,"col find posH");
+                        //cc.log(idx,"col find posH");
                         return false;
                     }
                 }
