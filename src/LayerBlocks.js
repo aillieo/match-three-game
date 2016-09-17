@@ -265,6 +265,7 @@ var LayerBlocks = cc.Layer.extend({
 
             if(self._blocks[i].isToBeRemoved()){
 
+                self._blocks[i].onRemove();
                 var fo =  cc.fadeOut(0.2);
                 var cb_1 =  cc.callFunc(setNull,self,i);
                 var cb_2 =  cc.removeSelf();

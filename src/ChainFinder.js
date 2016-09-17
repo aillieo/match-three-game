@@ -88,11 +88,22 @@ var ChainFinder = cc.Node.extend({
         blocksToRemoveRow = chainInRow.reduce(arrayPush,blocksToRemoveRow);
         if(lenRow >=5)
         {
-            chainInRow[0].setSuperPower(3);
+            for(var k = 0; k< lenRow ; k++){
+                if(chainInRow[k].getSuperPower() == 0){
+                    chainInRow[k].setSuperPower(3);
+                    break;
+                }
+            }
+
         }
         else if(lenRow == 4){
 
-            chainInRow[0].setSuperPower(1);
+            for(var k = 0; k< lenRow ; k++){
+                if(chainInRow[k].getSuperPower() == 0){
+                    chainInRow[k].setSuperPower(1);
+                    break;
+                }
+            }
 
         }
 
@@ -101,10 +112,20 @@ var ChainFinder = cc.Node.extend({
         blocksToRemoveCol = chainInCol.reduce(arrayPush,blocksToRemoveCol);
         if(lenCol >=5)
         {
-            chainInCol[0].setSuperPower(3);
+            for(var j = 0; j< lenCol ; j++){
+                if(chainInCol[j].getSuperPower() == 0){
+                    chainInCol[j].setSuperPower(3);
+                    break;
+                }
+            }
         }
         else if(lenCol == 4){
-            chainInCol[0].setSuperPower(1);
+            for(var j = 0; j< lenCol ; j++){
+                if(chainInCol[j].getSuperPower() == 0){
+                    chainInCol[j].setSuperPower(1);
+                    break;
+                }
+            }
         }
 
 
@@ -258,9 +279,9 @@ var ChainFinder = cc.Node.extend({
         var getBlockInPosC = function (currentRow,currentCol) {
             currentRow += 1;
             currentCol -= 1;
-                if(currentCol>=0 && currentRow<rows){
-                    return allBlocks[currentRow * cols + currentCol];
-                }
+            if(currentCol>=0 && currentRow<rows){
+                return allBlocks[currentRow * cols + currentCol];
+            }
         };
         var getBlockInPosD = function (currentRow,currentCol) {
             currentRow -= 1;
@@ -509,6 +530,14 @@ var ChainFinder = cc.Node.extend({
     },
 
     checkChainsAfterOperation : function (blockSource, blockTarget, allBlocks) {
+
+        if(blockSource.getTypeIndex() == 0 || blockTarget.getTypeIndex() == 0){
+
+            blockSource.markToRemove();
+            blockTarget.markToRemove();
+            return true;
+
+        }
 
         var self = this;
         var blocksToRemoveRow = [];

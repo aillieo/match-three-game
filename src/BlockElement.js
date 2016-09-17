@@ -11,6 +11,7 @@ var BlockElement = cc.Sprite.extend({
     _isFrozen:false,
     _withSuperPower:0,   // 0:normal, 1: 4 inRow or 4 inCol, 2: T or L type, 3: 5 or more in Row or Col
     _typeIndexInitialized:false,
+    _superPowerSprite:null,
     ignoreCheckInRow: false,
     ignoreCheckInCol: false,
     ctor:function () {
@@ -44,14 +45,13 @@ var BlockElement = cc.Sprite.extend({
         indexLabel.y = self.getContentSize().height/2;
 
         self.addChild(indexLabel, 5);
-        
+
         var rgbR = (GlobalPara.blockTypes - this._typeIndex) * 255/ GlobalPara.blockTypes;
         var rgbB = this._typeIndex * 255/ GlobalPara.blockTypes;
         var rgbG = 255- Math.abs(rgbR - rgbB);
         self.setColor(cc.color(rgbR, rgbG, rgbB));
-        
-        
-      
+
+
     },
 
     getCol : function () {
@@ -102,25 +102,49 @@ var BlockElement = cc.Sprite.extend({
 
     setSuperPower: function (superPower) {
 
-        this._withSuperPower = superPower;
+        var self = this;
+        self._withSuperPower = superPower;
+
+        if(!self._superPowerSprite) {
+            self._superPowerSprite = new cc.Sprite();
+        }
+
         switch (superPower){
 
             case 1:
-                this.setRotation(90);
+                self._superPowerSprite.setTexture(res.thunder);
                 break;
             case 2:
-                this.setRotation(-90);
+                self._superPowerSprite.setTexture(res.cross);
                 break;
             case 3:
-                this.setRotation(180);
+                self._superPowerSprite.setTexture(res.dot);
+                self._typeIndex = 0;
                 break;
 
         }
 
+
+        self.addChild(self._superPowerSprite,0);
+        self._superPowerSprite.setOpacity(127);
+        self._superPowerSprite.setPosition(self.getContentSize().width/2, self.getContentSize().height/2);
+
+
         this._willBeRemoved = false;
 
 
+    },
+
+    onRemove : function(){
+
+        if(this._superPowerSprite){
+            var st =  cc.scaleTo(0.2,3);
+            this._superPowerSprite.runAction(st);
+        }
+
+
     }
+
 
 
 });
