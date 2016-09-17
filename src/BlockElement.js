@@ -12,6 +12,7 @@ var BlockElement = cc.Sprite.extend({
     _withSuperPower:0,   // 0:normal, 1: 4 inRow or 4 inCol, 2: T or L type, 3: 5 or more in Row or Col
     _typeIndexInitialized:false,
     _superPowerSprite:null,
+    _indexLabel:null,
     ignoreCheckInRow: false,
     ignoreCheckInCol: false,
     ctor:function () {
@@ -38,13 +39,13 @@ var BlockElement = cc.Sprite.extend({
         this._typeIndex = typeIndex;
         var self = this;
 
-        var indexLabel = new cc.LabelTTF(self._typeIndex.toString(), "Arial", 38);
+        self._indexLabel = new cc.LabelTTF(self._typeIndex.toString(), "Arial", 38);
 
 
-        indexLabel.x = self.getContentSize().width/2;
-        indexLabel.y = self.getContentSize().height/2;
+        self._indexLabel.x = self.getContentSize().width/2;
+        self._indexLabel.y = self.getContentSize().height/2;
 
-        self.addChild(indexLabel, 5);
+        self.addChild(self._indexLabel, 5);
 
         var rgbR = (GlobalPara.blockTypes - this._typeIndex) * 255/ GlobalPara.blockTypes;
         var rgbB = this._typeIndex * 255/ GlobalPara.blockTypes;
@@ -120,6 +121,12 @@ var BlockElement = cc.Sprite.extend({
             case 3:
                 self._superPowerSprite.setTexture(res.dot);
                 self._typeIndex = 0;
+                if(self._indexLabel){
+                
+                    self._indexLabel.removeFromParent();
+                }
+                
+                self.setColor(cc.color(98,98,98));
                 break;
 
         }
